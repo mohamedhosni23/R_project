@@ -1,0 +1,64 @@
+---
+title: "Meteorological Data Analysis: Mahdia Station"
+author: "Mohamed Hosni"
+date: "2026-01-06"
+format: 
+  html:
+    toc: true
+    code-fold: false
+    theme: cosmo
+editor: visual
+---
+
+## 1. Introduction
+
+In this notebook, we analyze weather data from the Mahdia station (Tunisia). The goal is to investigate relationships between variables such as Wind Speed, Solar Radiation, Dew Point, and Vapor Pressure Deficit (VPD), and to compare climatic conditions between Day and Night.
+
+### Load Libraries
+
+\`\`\`{r setup, message=FALSE, warning=FALSE} library(tidyverse) library(corrplot) library(lubridate) 2. Data Loading and Cleaning We load the data directly from the AgriData platform and perform necessary preprocessing, including converting dates and creating a 'Period' variable to distinguish between Day (06:00 - 20:00) and Night. \# URL for the dataset url \<- "<https://catalog.agridata.tn/dataset/e5206f41-d451-4603-a776-9faee9d1e5d8/resource/257e23dd-c58c-462b-ab52-d75a02c4980e/download/0311326a_station-mahdia-gda-bir-ben-kemla-sous-serre-dggree-2024-mahdia.csv>"
+
+# Load Data
+
+df \<- read_csv(url)
+
+# Data Cleaning & Transformation
+
+df_clean \<- df %\>% mutate( \# Convert Date column to datetime object Date = dmy_hm(Date),
+
+```         
+# Create a Period column (Day vs Night) based on time
+Hour = hour(Date),
+Period = ifelse(Hour >= 6 & Hour < 20, "Day", "Night"),
+
+# Ensure Period is a factor
+Period = as.factor(Period)
+```
+
+) %\>% \# Select only relevant numeric columns for analysis to avoid NA issues select(Date, Period, Wind_Speed, Solar_Rad, Dew_Point, VPD) %\>% drop_na()
+
+# Preview the clean data
+
+glimpse(df_clean) 3. Statistical Analysis 3.1 Normality Test We perform the Shapiro-Wilk test to check if Wind_Speed follows a normal distribution. \# Shapiro-Wilk Test on a sample (limit to 5000 points as the test has a size limit) sample_wind \<- sample(df_clean\$Wind_Speed, 5000) shapiro_test \<- shapiro.test(sample_wind)
+
+print(shapiro_test) Interpretation: A p-value \< 0.05 indicates the data is not normally distributed.
+
+3.2 Correlation Analysis We visualize the relationships between key climatic variables using a correlation matrix. \# Select numeric variables num_vars \<- df_clean %\>% select(Wind_Speed, Solar_Rad, Dew_Point, VPD)
+
+# Compute correlation matrix
+
+cor_matrix \<- cor(num_vars)
+
+# Plot
+
+corrplot(cor_matrix, method = "circle", type = "upper", tl.col = "red", tl.srt = 45, title = "Correlation Plot", mar = c(0,0,2,0)) 3.3 Linear Regression We test the hypothesis that Solar Radiation can predict Dew Point. \# Linear Model construction model \<- lm(Dew_Point \~ Solar_Rad, data = df_clean) summary(model)
+
+# Visualization
+
+ggplot(df_clean, aes(x = Solar_Rad, y = Dew_Point)) + geom_point(color = "blue", alpha = 0.3, size = 1) + geom_smooth(method = "lm", color = "red", size = 1.2) + labs( title = "Linear Regression: Solar Radiation vs Dew Point", x = "Solar Radiation", y = "Dew Point" ) + theme_minimal() Interpretation: We examine the R-squared value to determine how much of the variance in Dew Point is explained by Solar Radiation.
+
+3.4 Hypothesis Testing (T-Test) We compare the mean Dew Point between Day and Night to see if there is a statistically significant difference. \# Welch Two Sample t-test t_test_result \<- t.test(Dew_Point \~ Period, data = df_clean) print(t_test_result)
+
+# Visualization (Boxplot)
+
+ggplot(df_clean, aes(x = Period, y = Dew_Point, fill = Period)) + geom_boxplot(outlier.shape = 16, outlier.size = 2) + labs( title = "Comparison of Dew Point: Day vs Night", y = "Dew Point", x = "Period" ) + theme_minimal() + scale_fill_manual(values = c("Day" = "#F8766D", "Night" = "#00BFC4")) Conclusion: The boxplot visually supports the T-test results, showing the distribution differences between the two periods.

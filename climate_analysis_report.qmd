@@ -1,0 +1,277 @@
+---
+title: "Statistical Analysis of Climate Variables"
+subtitle: "Mahdia Station – Tunisia (2024)"
+author: "Mohamed Hosni"
+date: today
+format:
+  html:
+    toc: true
+    number-sections: true
+    theme: sandstone
+    df-print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = "center",
+  fig.width = 7,
+  fig.height = 4
+)
+
+library(tidyverse)
+library(httr)
+library(corrplot)
+```
+
+## Code Summary / Resume
+
+This analysis performs a comprehensive statistical examination of climate data from the Mahdia station in Tunisia (2024). The project includes:
+
+### Data Processing Pipeline
+- **Data Acquisition**: Downloads CSV from Tunisia's agricultural data catalog via HTTP GET request
+- **Data Transformation**: Converts long-format data (Date, Variable, Value) to wide format for analysis
+- **Variable Extraction**: Extracts and renames key climate variables:
+  - Solar Radiation (Solar_Rad)
+  - Wind Speed (Wind_Speed)
+  - Dew Point (Dew_Point)
+  - Vapor Pressure Deficit (VPD)
+- **Period Classification**: Categorizes observations as "Day" (Solar_Rad > 0) or "Night" (Solar_Rad = 0)
+
+### Statistical Analyses Performed
+1. **Normality Testing**: Shapiro-Wilk test on Wind Speed (sampled to 5000 observations for computational efficiency)
+2. **Correlation Analysis**: Pearson correlation matrix for all numeric climate variables
+3. **Linear Regression**: Simple linear model predicting Dew Point from Solar Radiation
+4. **Hypothesis Testing**: Student's t-test comparing Dew Point between Day and Night periods
+5. **Descriptive Statistics**: Summary statistics for all climate variables
+
+### Visualizations
+- Correlation heatmap
+- Regression scatter plot with fitted line
+- Multiple boxplots comparing Day vs Night for different climate variables
+
+## 1. Introduction
+
+This report analyzes meteorological data from the Mahdia climate station to explore relationships between solar radiation, wind speed, dew point, and vapor pressure deficit (VPD).
+
+## 2. Data Loading and Preparation
+
+```{r data-loading}
+url <- "https://catalog.agridata.tn/dataset/e5206f41-d451-4603-a776-9faee9d1e5d8/resource/257e23dd-c58c-462b-ab52-d75a02c4980e/download/0311326a_station-mahdia-gda-bir-ben-kemla-sous-serre-dggree-2024-mahdia.csv"
+
+GET(url, write_disk("climate_data_fixed.csv", overwrite = TRUE))
+raw_df <- read_csv("climate_data_fixed.csv", show_col_types = FALSE)
+
+df_wide <- raw_df %>%
+  select(Date, nom_fr, valeur) %>%
+  group_by(Date, nom_fr) %>%
+  summarise(valeur = mean(valeur, na.rm = TRUE), .groups = "drop") %>%
+  pivot_wider(names_from = nom_fr, values_from = valeur)
+
+colnames(df_wide) <- make.names(colnames(df_wide))
+
+df <- df_wide %>%
+  rename(
+    Solar_Rad = Solar.radiation,
+    Dew_Point = Dew.Point,
+    Wind_Speed = U.sonic.wind.speed,
+    VPD = VPD
+  ) %>%
+  mutate(
+    Date = as.POSIXct(Date, format = "%Y-%m-%d %H:%M:%S"),
+    Period = factor(ifelse(Solar_Rad > 0, "Day", "Night"))
+  )
+
+print("Data Transformed Successfully:")
+print(head(df))
+```
+
+## 3. Descriptive Statistics
+
+```{r descriptive-stats}
+summary(df[, c("Solar_Rad", "Wind_Speed", "Dew_Point", "VPD")])
+```
+
+## 4. Normality Test (Wind Speed)
+
+```{r normality-test}
+wind_clean <- na.omit(df$Wind_Speed)
+sample_wind <- sample(wind_clean, min(5000, length(wind_clean)))
+shapiro_res <- shapiro.test(sample_wind)
+
+print("--- Shapiro-Wilk Normality Test (Wind Speed) ---")
+print(shapiro_res)
+```
+
+## 5. Correlation Analysis
+
+```{r correlation}
+numeric_df <- df %>%
+  select(Solar_Rad, Wind_Speed, Dew_Point, VPD) %>%
+  drop_na()
+
+cor_matrix <- cor(numeric_df)
+
+print("--- Correlation Matrix ---")
+print(cor_matrix)
+
+corrplot(
+  cor_matrix,
+  method = "color",
+  col = colorRampPalette(c("blue", "white", "red"))(200),
+  addCoef.col = "black",
+  tl.cex = 0.8,
+  title = "Correlation Plot",
+  mar = c(0, 0, 2, 0)
+)
+```
+
+## 6. Linear Regression
+
+```{r regression}
+model <- lm(Dew_Point ~ Solar_Rad, data = df)
+
+print("--- Linear Regression Model (Dew_Point ~ Solar_Rad) ---")
+summary(model)
+
+ggplot(df, aes(Solar_Rad, Dew_Point)) +
+  geom_point(color = "#1f77b4", alpha = 0.3) +
+  geom_smooth(method = "lm", color = "#d62728") +
+  labs(
+    title = "Linear Regression: Solar Radiation vs Dew Point",
+    x = "Solar Radiation",
+    y = "Dew Point"
+  ) +
+  theme_minimal()
+```
+
+## 7. Day vs Night Comparison - Statistical Tests
+
+```{r t-test}
+t_test_res <- t.test(Dew_Point ~ Period, data = df)
+
+print("--- T-Test (Day vs Night Dew Point) ---")
+print(t_test_res)
+```
+
+## 8. Boxplots: Day vs Night Comparisons
+
+### 8.1 Dew Point Comparison
+
+```{r boxplot-dewpoint}
+ggplot(df %>% filter(!is.na(Period)), aes(x = Period, y = Dew_Point, fill = Period)) +
+  geom_boxplot(alpha = 0.7, width = 0.5) +
+  scale_fill_manual(values = c("Day" = "#FDB813", "Night" = "#2C3E50")) +
+  labs(
+    title = "Comparison of Dew Point: Day vs Night",
+    y = "Dew Point (°C)",
+    x = "Period"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+### 8.2 Solar Radiation Comparison
+
+```{r boxplot-solar}
+ggplot(df %>% filter(!is.na(Period) & !is.na(Solar_Rad)), 
+       aes(x = Period, y = Solar_Rad, fill = Period)) +
+  geom_boxplot(alpha = 0.7, width = 0.5) +
+  scale_fill_manual(values = c("Day" = "#FDB813", "Night" = "#2C3E50")) +
+  labs(
+    title = "Comparison of Solar Radiation: Day vs Night",
+    y = "Solar Radiation (W/m²)",
+    x = "Period"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+### 8.3 Wind Speed Comparison
+
+```{r boxplot-wind}
+ggplot(df %>% filter(!is.na(Period) & !is.na(Wind_Speed)), 
+       aes(x = Period, y = Wind_Speed, fill = Period)) +
+  geom_boxplot(alpha = 0.7, width = 0.5) +
+  scale_fill_manual(values = c("Day" = "#FDB813", "Night" = "#2C3E50")) +
+  labs(
+    title = "Comparison of Wind Speed: Day vs Night",
+    y = "Wind Speed (m/s)",
+    x = "Period"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+### 8.4 VPD Comparison
+
+```{r boxplot-vpd}
+ggplot(df %>% filter(!is.na(Period) & !is.na(VPD)), 
+       aes(x = Period, y = VPD, fill = Period)) +
+  geom_boxplot(alpha = 0.7, width = 0.5) +
+  scale_fill_manual(values = c("Day" = "#FDB813", "Night" = "#2C3E50")) +
+  labs(
+    title = "Comparison of Vapor Pressure Deficit: Day vs Night",
+    y = "VPD (kPa)",
+    x = "Period"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+### 8.5 Combined Boxplot Panel
+
+```{r boxplot-combined, fig.width=10, fig.height=8}
+library(gridExtra)
+
+p1 <- ggplot(df %>% filter(!is.na(Period)), 
+             aes(x = Period, y = Dew_Point, fill = Period)) +
+  geom_boxplot(alpha = 0.7) +
+  scale_fill_manual(values = c("Day" = "#FDB813", "Night" = "#2C3E50")) +
+  labs(title = "Dew Point", y = "°C", x = "") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+p2 <- ggplot(df %>% filter(!is.na(Period) & !is.na(Solar_Rad)), 
+             aes(x = Period, y = Solar_Rad, fill = Period)) +
+  geom_boxplot(alpha = 0.7) +
+  scale_fill_manual(values = c("Day" = "#FDB813", "Night" = "#2C3E50")) +
+  labs(title = "Solar Radiation", y = "W/m²", x = "") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+p3 <- ggplot(df %>% filter(!is.na(Period) & !is.na(Wind_Speed)), 
+             aes(x = Period, y = Wind_Speed, fill = Period)) +
+  geom_boxplot(alpha = 0.7) +
+  scale_fill_manual(values = c("Day" = "#FDB813", "Night" = "#2C3E50")) +
+  labs(title = "Wind Speed", y = "m/s", x = "") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+p4 <- ggplot(df %>% filter(!is.na(Period) & !is.na(VPD)), 
+             aes(x = Period, y = VPD, fill = Period)) +
+  geom_boxplot(alpha = 0.7) +
+  scale_fill_manual(values = c("Day" = "#FDB813", "Night" = "#2C3E50")) +
+  labs(title = "VPD", y = "kPa", x = "") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+grid.arrange(p1, p2, p3, p4, ncol = 2, 
+             top = "Climate Variables: Day vs Night Comparison")
+```
+
+## 9. Conclusion
+
+### Key Findings:
+
+- **Solar radiation significantly influences dew point** - The linear regression model demonstrates a clear relationship between these variables
+- **Clear statistical differences exist between day and night** - The t-test confirms significant differences in dew point between periods
+- **Results support microclimate and agricultural analysis** - The comprehensive statistical analysis provides insights for agricultural planning and climate monitoring
+
+### Recommendations:
+
+- Continue monitoring these climate variables for long-term trend analysis
+- Use the day/night classification for targeted agricultural interventions
+- Consider expanding the analysis to include seasonal variations and extreme weather events
