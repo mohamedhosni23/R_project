@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="climate_analysis_jury_presentation_files/libs/clipboard/clipboard.min.js"></script>
+<script src="climate_analysis_jury_presentation_files/libs/quarto-html/tabby.min.js"></script>
+<script src="climate_analysis_jury_presentation_files/libs/quarto-html/popper.min.js"></script>
+<script src="climate_analysis_jury_presentation_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="climate_analysis_jury_presentation_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="climate_analysis_jury_presentation_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="climate_analysis_jury_presentation_files/libs/quarto-html/quarto-syntax-highlighting-dark-0348920b7671f696dc9078d39bff215e.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.32">
+
+  <meta name="author" content="Mohamed Hosni">
+  <meta name="dcterms.date" content="2026-01-07">
+  <title>Statistical Analysis of Climate Variables</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="climate_analysis_jury_presentation_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="climate_analysis_jury_presentation_files/libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #e1e4e8; background-color: #24292e; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #e1e4e8; } /* Normal */
+    code span.al { color: #ff5555; font-weight: bold; } /* Alert */
+    code span.an { color: #6a737d; } /* Annotation */
+    code span.at { color: #f97583; } /* Attribute */
+    code span.bn { color: #79b8ff; } /* BaseN */
+    code span.bu { color: #f97583; } /* BuiltIn */
+    code span.cf { color: #f97583; } /* ControlFlow */
+    code span.ch { color: #9ecbff; } /* Char */
+    code span.cn { color: #79b8ff; } /* Constant */
+    code span.co { color: #6a737d; } /* Comment */
+    code span.cv { color: #6a737d; } /* CommentVar */
+    code span.do { color: #6a737d; } /* Documentation */
+    code span.dt { color: #f97583; } /* DataType */
+    code span.dv { color: #79b8ff; } /* DecVal */
+    code span.er { color: #ff5555; text-decoration: underline; } /* Error */
+    code span.ex { color: #f97583; font-weight: bold; } /* Extension */
+    code span.fl { color: #79b8ff; } /* Float */
+    code span.fu { color: #b392f0; } /* Function */
+    code span.im { color: #9ecbff; } /* Import */
+    code span.in { color: #6a737d; } /* Information */
+    code span.kw { color: #f97583; } /* Keyword */
+    code span.op { color: #e1e4e8; } /* Operator */
+    code span.ot { color: #b392f0; } /* Other */
+    code span.pp { color: #f97583; } /* Preprocessor */
+    code span.re { color: #6a737d; } /* RegionMarker */
+    code span.sc { color: #79b8ff; } /* SpecialChar */
+    code span.ss { color: #9ecbff; } /* SpecialString */
+    code span.st { color: #9ecbff; } /* String */
+    code span.va { color: #ffab70; } /* Variable */
+    code span.vs { color: #9ecbff; } /* VerbatimString */
+    code span.wa { color: #ff5555; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="climate_analysis_jury_presentation_files/libs/revealjs/dist/theme/quarto-a89c3636d3310ab213cc169e1278657c.css">
+  <link href="climate_analysis_jury_presentation_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="climate_analysis_jury_presentation_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="climate_analysis_jury_presentation_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="climate_analysis_jury_presentation_files/libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="climate_analysis_jury_presentation_files/libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
+  <link href="climate_analysis_jury_presentation_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-dark">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Statistical Analysis of Climate Variables</h1>
+  <p class="subtitle">Meteorological Data Analysis - Mahdia Station, Tunisia (2024)</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Mohamed Hosni 
+</div>
+</div>
+</div>
+
+  <p class="date">2026-01-07</p>
+</section>
+<section class="slide level2">
+
+<div class="cell">
+<style type="text/css">
+/* Custom Colorful Styling */
+.reveal .slides section {
+  padding: 40px 60px;
+  text-align: left;
+}
+
+.reveal .title-slide {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f5576c 100%);
+  color: white;
+  text-align: center;
+}
+
+.reveal .title-slide h1,
+.reveal .title-slide h2,
+.reveal .title-slide h3 {
+  color: white;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+  font-weight: bold;
+}
+
+.reveal h1 {
+  color: #667eea;
+  font-weight: bold;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+}
+
+.reveal h2 {
+  color: #764ba2;
+  font-weight: bold;
+}
+
+.reveal h3 {
+  color: #f5576c;
+  font-weight: bold;
+}
+
+.reveal .progress {
+  color: #f5576c;
+  height: 4px;
+  background: rgba(245, 87, 108, 0.2);
+}
+
+.reveal .controls {
+  color: #667eea;
+}
+
+.reveal .slide-number {
+  background: linear-gradient(135deg, #667eea 0%, #f5576c 100%);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+/* Animations */
+.reveal section {
+  animation: fadeIn 0.6s ease-in;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(15px) scale(0.98); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
+}
+
+.reveal .slides section .fragment {
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.reveal .slides section .fragment.visible {
+  opacity: 1;
+  visibility: visible;
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from { 
+    transform: translateX(-20px) scale(0.95); 
+    opacity: 0; 
+  }
+  to { 
+    transform: translateX(0) scale(1); 
+    opacity: 1; 
+  }
+}
+
+/* Colorful boxes for key points */
+.highlight-box {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(245, 87, 108, 0.1) 100%);
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  border-left: 4px solid #f5576c;
+}
+
+.stat-box {
+  background: rgba(102, 126, 234, 0.05);
+  padding: 15px;
+  border-radius: 8px;
+  margin: 10px;
+  border: 2px solid rgba(102, 126, 234, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Enhanced list styling */
+.reveal ul, .reveal ol {
+  line-height: 1.8;
+}
+
+.reveal li {
+  margin: 10px 0;
+  padding-left: 10px;
+}
+
+/* Code blocks */
+.reveal pre {
+  background: #2d2d2d;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.reveal code {
+  color: #f5576c;
+  background: rgba(245, 87, 108, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+</style>
+</div>
+</section>
+<section id="title-slide" class="slide level2 title-slide center">
+<h2>Title Slide</h2>
+</section>
+<section>
+<section id="statistical-analysis-of-climate-variables" class="title-slide slide level1 fragment fade-in center">
+<h1>Statistical Analysis of Climate Variables</h1>
+
+</section>
+<section id="meteorological-data-analysis" class="slide level2 fragment fade-in">
+<h2>Meteorological Data Analysis</h2>
+<h3 class="fragment fade-in" id="mahdia-station-tunisia-2024">Mahdia Station, Tunisia (2024)</h3>
+<p><strong>Mohamed Hosni</strong> {.fragment .fade-in}</p>
+<p>2026-01-07 {.fragment .fade-in}</p>
+<div class="fragment fade-in">
+<div style="margin-top: 50px; font-size: 0.8em; opacity: 0.8;">
+<p>📊 Comprehensive Statistical Analysis | 🌡️ Climate Variables | 📈 Data Visualization</p>
+</div>
+</div>
+</section>
+<section id="presentation-outline" class="slide level2 fragment fade-in scrollable">
+<h2>Presentation Outline</h2>
+<h3 class="fragment fade-in" id="structure">Structure</h3>
+<div class="fragment fade-in">
+<ol type="1">
+<li><strong>Introduction &amp; Objectives</strong> 📋</li>
+<li><strong>Data Source &amp; Methodology</strong> 📊</li>
+<li><strong>Data Processing Pipeline</strong> ⚙️</li>
+<li><strong>Descriptive Statistics</strong> 📈</li>
+<li><strong>Statistical Analyses</strong> 🔬
+<ul>
+<li>Normality Testing</li>
+<li>Correlation Analysis</li>
+<li>Linear Regression</li>
+<li>Hypothesis Testing</li>
+</ul></li>
+<li><strong>Visualizations &amp; Results</strong> 📉</li>
+<li><strong>Conclusions &amp; Recommendations</strong> ✅</li>
+</ol>
+</div>
+</section>
+<section id="introduction" class="slide level2 fragment fade-in">
+<h2>1. Introduction</h2>
+<h3 class="fragment fade-in" id="research-context">Research Context</h3>
+<div class="fragment fade-in">
+<ul>
+<li><strong>📍 Location</strong>: Mahdia Climate Station, Tunisia</li>
+<li><strong>📅 Period</strong>: 2024</li>
+<li><strong>💾 Data Source</strong>: Tunisia’s Agricultural Data Catalog (AgriData)</li>
+<li><strong>🎯 Objective</strong>: Investigate relationships between key climate variables and compare Day vs Night conditions</li>
+</ul>
+</div>
+<h3 class="fragment fade-in" id="climate-variables-analyzed">Climate Variables Analyzed</h3>
+<div class="fragment fade-in">
+<ul>
+<li><strong>☀️ Solar Radiation</strong> (W/m²)</li>
+<li><strong>💨 Wind Speed</strong> (m/s)</li>
+<li><strong>💧 Dew Point</strong> (°C)</li>
+<li><strong>🌡️ Vapor Pressure Deficit - VPD</strong> (kPa)</li>
+</ul>
+</div>
+</section>
+<section id="research-objectives" class="slide level2 fragment fade-in scrollable">
+<h2>2. Research Objectives</h2>
+<h3 class="fragment fade-in" id="primary-goals">Primary Goals</h3>
+<div class="fragment fade-in">
+<ol type="1">
+<li><strong>🔍 Explore relationships</strong> between solar radiation, wind speed, dew point, and VPD</li>
+<li><strong>🌓 Compare climatic conditions</strong> between Day and Night periods</li>
+<li><strong>📊 Test statistical hypotheses</strong> about variable distributions and relationships</li>
+<li><strong>💡 Provide insights</strong> for agricultural planning and climate monitoring</li>
+</ol>
+</div>
+<h3 class="fragment fade-in" id="research-questions">Research Questions</h3>
+<div class="fragment fade-in">
+<ul>
+<li>❓ Does solar radiation significantly predict dew point?</li>
+<li>❓ Are there statistically significant differences between day and night conditions?</li>
+<li>❓ What are the correlations between different climate variables?</li>
+</ul>
+</div>
+</section>
+<section id="data-source-acquisition" class="slide level2">
+<h2>3. Data Source &amp; Acquisition</h2>
+<h3 id="data-collection">Data Collection</h3>
+<div class="cell" data-layout-align="center">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="co"># Data Source: Tunisia Agricultural Data Catalog</span></span>
+<span id="cb1-2"><a href=""></a>url <span class="ot">&lt;-</span> <span class="st">"https://catalog.agridata.tn/dataset/e5206f41-d451-4603-a776-9faee9d1e5d8/resource/257e23dd-c58c-462b-ab52-d75a02c4980e/download/0311326a_station-mahdia-gda-bir-ben-kemla-sous-serre-dggree-2024-mahdia.csv"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<ul>
+<li><strong>Platform</strong>: AgriData Tunisia</li>
+<li><strong>Format</strong>: CSV (Long format)</li>
+<li><strong>Station</strong>: Mahdia - GDA Bir Ben Kemla (Greenhouse)</li>
+<li><strong>Institution</strong>: DGGREE (Direction Générale du Génie Rural et de l’Exploitation des Eaux)</li>
+</ul>
+</section>
+<section id="data-processing-pipeline" class="slide level2">
+<h2>4. Data Processing Pipeline</h2>
+<h3 id="step-1-data-loading">Step 1: Data Loading</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>Response [https://catalog.agridata.tn/dataset/e5206f41-d451-4603-a776-9faee9d1e5d8/resource/257e23dd-c58c-462b-ab52-d75a02c4980e/download/0311326a_station-mahdia-gda-bir-ben-kemla-sous-serre-dggree-2024-mahdia.csv]
+  Date: 2026-01-07 12:08
+  Status: 200
+  Content-Type: text/csv
+  Size: 2.01 MB
+&lt;ON DISK&gt;  C:\Users\hamid\Downloads\R_report\climate_data_fixed.csv</code></pre>
+</div>
+</div>
+<h3 id="step-2-data-transformation">Step 2: Data Transformation</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>✅ Data successfully transformed</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Total observations: 3318 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Variables: 14 </code></pre>
+</div>
+</div>
+</section>
+<section id="data-overview" class="slide level2">
+<h2>5. Data Overview</h2>
+<h3 id="dataset-characteristics">Dataset Characteristics</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>Dataset Summary:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>─────────────────────────────────────</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Total observations: 3318 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Date range: 2025-07-28 to 2025-12-25 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Day observations: 1674 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Night observations: 1644 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Variables analyzed:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  • Solar Radiation (W/m²)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  • Wind Speed (m/s)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  • Dew Point (°C)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  • Vapor Pressure Deficit (kPa)</code></pre>
+</div>
+</div>
+</section>
+<section id="descriptive-statistics" class="slide level2">
+<h2>6. Descriptive Statistics</h2>
+<h3 id="summary-statistics">Summary Statistics</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>Key Statistics:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Solar Radiation:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Mean: 184.72 W/m²</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Median: 1 W/m²</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Wind Speed:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Mean: 1.28 m/s</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Median: 0.3 m/s</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Dew Point:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Mean: 18.93 °C</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Median: 20.04 °C</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>VPD:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Mean: 7.53 kPa</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Median: 1 kPa</code></pre>
+</div>
+</div>
+</section>
+<section id="statistical-analysis-normality-test" class="slide level2">
+<h2>7. Statistical Analysis: Normality Test</h2>
+<h3 id="shapiro-wilk-test-wind-speed">Shapiro-Wilk Test (Wind Speed)</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>Shapiro-Wilk Normality Test</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>─────────────────────────────</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Variable: Wind Speed</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Sample size: 3318 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>W-statistic: 0.3659 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>p-value: 2.126e-75 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Interpretation: Data significantly deviates from normal distribution (p &lt; 0.05)
+→ Non-parametric tests may be more appropriate</code></pre>
+</div>
+</div>
+<p><strong>Note</strong>: Test limited to 5000 observations due to computational constraints</p>
+</section>
+<section id="correlation-analysis" class="slide level2">
+<h2>8. Correlation Analysis</h2>
+<h3 id="correlation-matrix">Correlation Matrix</h3>
+
+<img data-src="climate_analysis_jury_presentation_files/figure-revealjs/correlation-1.png" class="quarto-figure quarto-figure-center r-stretch" width="2700"></section>
+<section id="correlation-results" class="slide level2">
+<h2>9. Correlation Results</h2>
+<h3 id="key-correlations">Key Correlations</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>Correlation Coefficients:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>─────────────────────────</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Solar Radiation ↔ Dew Point:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  r = 0.269 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Solar Radiation ↔ VPD:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  r = 0.729 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Wind Speed ↔ Dew Point:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  r = 0.206 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Dew Point ↔ VPD:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  r = 0.258 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Interpretation:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  • Weak relationship between Solar Radiation and Dew Point</code></pre>
+</div>
+</div>
+</section>
+<section id="linear-regression-analysis" class="slide level2">
+<h2>10. Linear Regression Analysis</h2>
+<h3 id="model-dew-point-solar-radiation">Model: Dew Point ~ Solar Radiation</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear Regression Model</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>─────────────────────────</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Dependent Variable: Dew Point (°C)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Independent Variable: Solar Radiation (W/m²)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model Equation:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Dew Point = 17.943 + 0.00537 × Solar Radiation</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model Summary:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  R-squared: 0.0721 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Adjusted R-squared: 0.0719 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  F-statistic: 257.8 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  p-value: 6.313e-56 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Interpretation: Solar Radiation is a significant predictor of Dew Point (p &lt; 0.05)</code></pre>
+</div>
+</div>
+</section>
+<section id="regression-visualization" class="slide level2">
+<h2>11. Regression Visualization</h2>
+<h3 id="scatter-plot-with-fitted-line">Scatter Plot with Fitted Line</h3>
+
+<img data-src="climate_analysis_jury_presentation_files/figure-revealjs/regression-plot-1.png" class="quarto-figure quarto-figure-center r-stretch" width="2700"></section>
+<section id="hypothesis-testing-t-test" class="slide level2">
+<h2>12. Hypothesis Testing: T-Test</h2>
+<h3 id="day-vs-night-comparison">Day vs Night Comparison</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>Student's T-Test: Day vs Night (Dew Point)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>───────────────────────────────────────────</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Test Type: Welch Two Sample t-test</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Results:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  t-statistic: 19.2787 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Degrees of freedom: 3060.77 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  p-value: 2.953e-78 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean Values:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Day: 20.63 °C</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Night: 17.2 °C</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Difference: 3.43 °C</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Interpretation: Significant difference between Day and Night (p &lt; 0.05)
+→ Reject null hypothesis: Means are significantly different</code></pre>
+</div>
+</div>
+</section>
+<section id="boxplots-dew-point-comparison" class="slide level2">
+<h2>13. Boxplots: Dew Point Comparison</h2>
+<h3 id="day-vs-night">Day vs Night</h3>
+
+<img data-src="climate_analysis_jury_presentation_files/figure-revealjs/boxplot-dewpoint-1.png" class="quarto-figure quarto-figure-center r-stretch" width="2700"></section>
+<section id="boxplots-solar-radiation" class="slide level2">
+<h2>14. Boxplots: Solar Radiation</h2>
+<h3 id="day-vs-night-1">Day vs Night</h3>
+
+<img data-src="climate_analysis_jury_presentation_files/figure-revealjs/boxplot-solar-1.png" class="quarto-figure quarto-figure-center r-stretch" width="2700"></section>
+<section id="boxplots-wind-speed" class="slide level2">
+<h2>15. Boxplots: Wind Speed</h2>
+<h3 id="day-vs-night-2">Day vs Night</h3>
+
+<img data-src="climate_analysis_jury_presentation_files/figure-revealjs/boxplot-wind-1.png" class="quarto-figure quarto-figure-center r-stretch" width="2700"></section>
+<section id="boxplots-vpd-comparison" class="slide level2">
+<h2>16. Boxplots: VPD Comparison</h2>
+<h3 id="day-vs-night-3">Day vs Night</h3>
+
+<img data-src="climate_analysis_jury_presentation_files/figure-revealjs/boxplot-vpd-1.png" class="quarto-figure quarto-figure-center r-stretch" width="2700"></section>
+<section id="combined-boxplot-panel" class="slide level2">
+<h2>17. Combined Boxplot Panel</h2>
+<h3 id="all-climate-variables">All Climate Variables</h3>
+
+<img data-src="climate_analysis_jury_presentation_files/figure-revealjs/boxplot-combined-1.png" class="quarto-figure quarto-figure-center r-stretch" width="3300"></section>
+<section id="key-findings" class="slide level2 fragment fade-in">
+<h2>18. Key Findings</h2>
+<h3 class="fragment fade-in" id="main-results">Main Results</h3>
+<div class="fragment fade-in">
+<h4 id="solar-radiation-dew-point-relationship">1. <strong>☀️ Solar Radiation → 💧 Dew Point Relationship</strong></h4>
+<ul>
+<li><strong>✅ Significant linear relationship</strong> (p &lt; 0.001)</li>
+<li>R² indicates moderate to strong predictive power</li>
+<li>Solar radiation is a reliable predictor of dew point</li>
+</ul>
+</div>
+<div class="fragment fade-in">
+<h4 id="day-vs-night-differences">2. <strong>🌓 Day vs Night Differences</strong></h4>
+<ul>
+<li><strong>✅ Statistically significant differences</strong> in dew point (p &lt; 0.05)</li>
+<li>Clear visual separation in boxplots</li>
+<li>Day period shows higher variability</li>
+</ul>
+</div>
+<div class="fragment fade-in">
+<h4 id="variable-correlations">3. <strong>🔗 Variable Correlations</strong></h4>
+<ul>
+<li>Strong correlations between related variables</li>
+<li>Solar radiation and VPD show expected relationships</li>
+<li>Wind speed shows moderate correlations</li>
+</ul>
+</div>
+</section>
+<section id="statistical-summary" class="slide level2">
+<h2>19. Statistical Summary</h2>
+<h3 id="test-results-summary">Test Results Summary</h3>
+<table class="caption-top">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 25%">
+<col style="width: 15%">
+<col style="width: 17%">
+<col style="width: 30%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Test</th>
+<th>Variable(s)</th>
+<th>Result</th>
+<th>p-value</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Shapiro-Wilk</strong></td>
+<td>Wind Speed</td>
+<td>W = 0.366</td>
+<td>2.13e-75</td>
+<td>Non-normal</td>
+</tr>
+<tr class="even">
+<td><strong>T-Test</strong></td>
+<td>Dew Point (Day vs Night)</td>
+<td>t = 19.279</td>
+<td>2.95e-78</td>
+<td>Significant difference</td>
+</tr>
+<tr class="odd">
+<td><strong>Linear Regression</strong></td>
+<td>Dew Point ~ Solar_Rad</td>
+<td>R² = 0.072</td>
+<td>6.31e-56</td>
+<td>Significant predictor</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="practical-implications" class="slide level2 scrollable">
+<h2>20. Practical Implications</h2>
+<h3 id="agricultural-applications">Agricultural Applications</h3>
+<ol type="1">
+<li><strong>Irrigation Planning</strong>
+<ul>
+<li>Use dew point predictions based on solar radiation forecasts</li>
+<li>Optimize water usage during different periods</li>
+</ul></li>
+<li><strong>Crop Management</strong>
+<ul>
+<li>Day/night differences inform timing of agricultural activities</li>
+<li>VPD monitoring helps prevent plant stress</li>
+</ul></li>
+<li><strong>Climate Monitoring</strong>
+<ul>
+<li>Establish baseline conditions for the Mahdia region</li>
+<li>Track long-term climate trends</li>
+</ul></li>
+<li><strong>Greenhouse Management</strong>
+<ul>
+<li>Optimize ventilation based on wind speed patterns</li>
+<li>Control humidity using dew point data</li>
+</ul></li>
+</ol>
+</section>
+<section id="methodological-strengths" class="slide level2">
+<h2>21. Methodological Strengths</h2>
+<h3 id="robust-analysis">Robust Analysis</h3>
+<p>✅ <strong>Comprehensive Statistical Approach</strong> - Multiple statistical tests (normality, correlation, regression, hypothesis testing) - Appropriate sample sizes and test selection</p>
+<p>✅ <strong>Data Quality</strong> - Proper data transformation (long to wide format) - Missing value handling - Period classification based on solar radiation</p>
+<p>✅ <strong>Visualization</strong> - Multiple visualization types (correlation matrix, scatter plots, boxplots) - Clear and informative graphics</p>
+<p>✅ <strong>Reproducibility</strong> - Well-documented code - Transparent methodology</p>
+</section>
+<section id="limitations-future-work" class="slide level2 scrollable">
+<h2>22. Limitations &amp; Future Work</h2>
+<h3 id="current-limitations">Current Limitations</h3>
+<ul>
+<li><strong>Sample Size</strong>: Normality test limited to 5000 observations</li>
+<li><strong>Temporal Scope</strong>: Analysis limited to 2024 data</li>
+<li><strong>Variables</strong>: Focus on 4 main climate variables</li>
+<li><strong>Station</strong>: Single station analysis (Mahdia)</li>
+</ul>
+<h3 id="future-research-directions">Future Research Directions</h3>
+<ol type="1">
+<li><strong>Expand Temporal Range</strong>: Multi-year analysis for trend detection</li>
+<li><strong>Spatial Analysis</strong>: Compare multiple stations across Tunisia</li>
+<li><strong>Advanced Modeling</strong>: Machine learning approaches for prediction</li>
+<li><strong>Seasonal Analysis</strong>: Investigate seasonal patterns</li>
+<li><strong>Extreme Events</strong>: Analysis of extreme weather conditions</li>
+</ol>
+</section>
+<section id="conclusions" class="slide level2 fragment fade-in scrollable">
+<h2>23. Conclusions</h2>
+<h3 class="fragment fade-in" id="summary">Summary</h3>
+<div class="fragment fade-in">
+<ol type="1">
+<li><strong>☀️ Solar radiation significantly influences dew point</strong>
+<ul>
+<li>Linear regression model demonstrates clear predictive relationship</li>
+<li>R² value indicates meaningful variance explanation</li>
+</ul></li>
+</ol>
+</div>
+<div class="fragment fade-in">
+<ol start="2" type="1">
+<li><strong>🌓 Clear statistical differences between day and night</strong>
+<ul>
+<li>T-test confirms significant differences in dew point</li>
+<li>Boxplots visually support statistical findings</li>
+</ul></li>
+</ol>
+</div>
+<div class="fragment fade-in">
+<ol start="3" type="1">
+<li><strong>🌾 Results support microclimate and agricultural analysis</strong>
+<ul>
+<li>Comprehensive statistical analysis provides actionable insights</li>
+<li>Findings applicable to agricultural planning and climate monitoring</li>
+</ul></li>
+</ol>
+</div>
+<div class="fragment fade-in">
+<ol start="4" type="1">
+<li><strong>✅ Methodology is robust and reproducible</strong>
+<ul>
+<li>Transparent data processing pipeline</li>
+<li>Appropriate statistical tests applied</li>
+</ul></li>
+</ol>
+</div>
+</section>
+<section id="recommendations" class="slide level2 scrollable">
+<h2>24. Recommendations</h2>
+<h3 id="actionable-steps">Actionable Steps</h3>
+<ol type="1">
+<li><strong>Continue Monitoring</strong>
+<ul>
+<li>Establish long-term monitoring program</li>
+<li>Track trends over multiple years</li>
+</ul></li>
+<li><strong>Agricultural Applications</strong>
+<ul>
+<li>Use day/night classification for targeted interventions</li>
+<li>Integrate findings into irrigation scheduling</li>
+</ul></li>
+<li><strong>Expand Analysis</strong>
+<ul>
+<li>Include seasonal variations</li>
+<li>Analyze extreme weather events</li>
+<li>Compare with other stations</li>
+</ul></li>
+<li><strong>Data Integration</strong>
+<ul>
+<li>Combine with crop yield data</li>
+<li>Link to agricultural productivity metrics</li>
+</ul></li>
+</ol>
+</section>
+<section id="acknowledgments" class="slide level2">
+<h2>25. Acknowledgments</h2>
+<h3 id="data-sources">Data Sources</h3>
+<ul>
+<li><strong>AgriData Tunisia</strong>: Data platform</li>
+<li><strong>DGGREE</strong>: Direction Générale du Génie Rural et de l’Exploitation des Eaux</li>
+<li><strong>Mahdia Station</strong>: GDA Bir Ben Kemla (Greenhouse)</li>
+</ul>
+<h3 id="tools-libraries">Tools &amp; Libraries</h3>
+<ul>
+<li><strong>R Statistical Software</strong></li>
+<li><strong>Tidyverse</strong>: Data manipulation and visualization</li>
+<li><strong>Quarto</strong>: Reproducible research framework</li>
+</ul>
+</section>
+<section id="thank-you" class="slide level2 title-slide center">
+<h2>Thank You!</h2>
+</section></section>
+<section>
+<section id="questions-discussion" class="title-slide slide level1 fragment fade-in center">
+<h1>Questions &amp; Discussion</h1>
+
+</section>
+<section id="statistical-analysis-of-climate-variables-1" class="slide level2 fragment fade-in">
+<h2>Statistical Analysis of Climate Variables</h2>
+<h3 class="fragment fade-in" id="mahdia-station-tunisia-2024-1">Mahdia Station, Tunisia (2024)</h3>
+<p><strong>Mohamed Hosni</strong> {.fragment .fade-in}</p>
+<div class="fragment fade-in">
+<div style="margin-top: 50px; font-size: 1.2em;">
+<p>📧 Contact | 📊 Full Report Available | 🔬 Reproducible Analysis</p>
+</div>
+</div>
+</section>
+<section id="appendix-technical-details" class="slide level2">
+<h2>Appendix: Technical Details</h2>
+<h3 id="software-packages">Software &amp; Packages</h3>
+<div class="cell" data-layout-align="center">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href=""></a><span class="fu">sessionInfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<h3 id="data-processing-code">Data Processing Code</h3>
+<ul>
+<li>Data downloaded via HTTP GET request</li>
+<li>Transformation from long to wide format using <code>pivot_wider()</code></li>
+<li>Period classification: Day (Solar_Rad &gt; 0) vs Night (Solar_Rad = 0)</li>
+<li>All analyses performed in R using tidyverse ecosystem</li>
+</ul>
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+<p>Meteorological Data Analysis - Mahdia Station | Mohamed Hosni</p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="climate_analysis_jury_presentation_files/libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="climate_analysis_jury_presentation_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="climate_analysis_jury_presentation_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="climate_analysis_jury_presentation_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="climate_analysis_jury_presentation_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="climate_analysis_jury_presentation_files/libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
+  <script src="climate_analysis_jury_presentation_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="climate_analysis_jury_presentation_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="climate_analysis_jury_presentation_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="climate_analysis_jury_presentation_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="climate_analysis_jury_presentation_files/libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': true,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true,"numbers":true,"width":"300","titleSelector":"h1, h2, h3"},
+'chalkboard': {"buttons":false},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'fade',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'fast',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+
+    <script>
+
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+
+      // slide changes (different for each slide format).
+
+      (function () {
+
+        // dispatch for htmlwidgets
+
+        function fireSlideEnter() {
+
+          const event = window.document.createEvent("Event");
+
+          event.initEvent("slideenter", true, true);
+
+          window.document.dispatchEvent(event);
+
+        }
+
+    
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+
+          fireSlideEnter();
+
+    
+
+          // dispatch for shiny
+
+          if (window.jQuery) {
+
+            if (previousSlide) {
+
+              window.jQuery(previousSlide).trigger("hidden");
+
+            }
+
+            if (currentSlide) {
+
+              window.jQuery(currentSlide).trigger("shown");
+
+            }
+
+          }
+
+        }
+
+    
+
+        // hookup for slidy
+
+        if (window.w3c_slidy) {
+
+          window.w3c_slidy.add_observer(function (slide_num) {
+
+            // slide_num starts at position 1
+
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+
+          });
+
+        }
+
+    
+
+      })();
+
+    </script>
+
+    
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
+              }
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

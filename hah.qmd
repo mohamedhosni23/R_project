@@ -1,0 +1,385 @@
+---
+title: "Analyse Statistique Climatique"
+subtitle: "Station Mahdia (GDA Bir Ben Kemla) - 2024"
+author: "Mohamed Hosni"
+date: "2026-01-07"
+format:
+  revealjs:
+    theme: league
+    transition: slide
+    slide-number: true
+    width: 1600         
+    height: 900
+    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Flag_of_Tunisia.svg/1200px-Flag_of_Tunisia.svg.png"
+    footer: "Projet Data Science - Mahdia 2024"
+    incremental: false
+    code-line-numbers: true
+    echo: true          
+    output: true        
+editor: source
+---
+
+```{r setup, include=FALSE}
+# --- CHARGEMENT SILENCIEUX DES LIBRAIRIES ---
+if (!require("tidyverse")) install.packages("tidyverse")
+if (!require("httr")) install.packages("httr")
+if (!require("corrplot")) install.packages("corrplot")
+library(tidyverse)
+library(httr)
+library(corrplot)
+```
+
+## Introduction {.center}
+
+::: r-fit-text
+**Ce rapport analyse les données météorologiques de la station climatique de Mahdia pour explorer les relations entre le rayonnement solaire, la vitesse du vent, le point de rosée et le déficit de pression de vapeur (DPV).**
+
+:::
+
+
+------------------------------------------------------------------------
+
+## Chargement des Données
+
+Lecture intelligente (détection auto du séparateur et correction des noms).
+
+```{r load-data, message=FALSE, warning=FALSE}
+# -------------------------------
+# 1. DEFINITION DU FICHIER
+# -------------------------------
+data_file <- "climate_data_fixed.csv"
+
+# Vérification existence
+if (!file.exists(data_file)) {
+  stop("❌ Fichier introuvable. Assurez-vous que 'climate_data_fixed.csv' est dans le dossier.")
+}
+
+# -------------------------------
+# 2. LECTURE ROBUSTE (Virgule ou Point-Virgule)
+# -------------------------------
+# Essai 1 : Lecture standard (virgule)
+climate_data <- read_csv(data_file, show_col_types = FALSE)
+
+# Si une seule colonne détectée, c'est probablement un point-virgule (format FR/TN)
+if (ncol(climate_data) <= 1) {
+  message("⚠️ Séparateur ';' détecté. Rechargement avec read_csv2...")
+  climate_data <- read_csv2(data_file, show_col_types = FALSE)
+}
+
+# -------------------------------
+# 3. STANDARDISATION DES NOMS (Tout en minuscule)
+# -------------------------------
+# Nettoyage des préfixes BOM/encoding (ï..Date devient date)
+names(climate_data) <- gsub("^ï\\.\\.|^x\\.", "", names(climate_data))
+# Conversion en minuscule
+names(climate_data) <- tolower(names(climate_data))
+
+# Gestion des doublons de noms de colonnes AVANT tout renommage
+if (any(duplicated(names(climate_data)))) {
+  message("⚠️ Doublons détectés dans les noms de colonnes. Correction en cours...")
+  names(climate_data) <- make.unique(names(climate_data), sep = "_")
+}
+
+# Vérification des colonnes standard
+has_date <- "date" %in% names(climate_data)
+has_nom_fr <- "nom_fr" %in% names(climate_data)
+has_valeur <- "valeur" %in% names(climate_data)
+
+# Recherche des colonnes si elles n'existent pas déjà
+if (!has_date) {
+  date_col <- names(climate_data)[grepl("^date", names(climate_data), ignore.case = TRUE)][1]
+  if (!is.na(date_col)) {
+    climate_data <- climate_data %>% rename(date = !!sym(date_col))
+  }
+}
+
+if (!has_nom_fr) {
+  nom_col <- names(climate_data)[grepl("^nom|^variable", names(climate_data), ignore.case = TRUE)][1]
+  if (!is.na(nom_col) && nom_col != "nom_fr") {
+    climate_data <- climate_data %>% rename(nom_fr = !!sym(nom_col))
+  }
+}
+
+if (!has_valeur) {
+  valeur_col <- names(climate_data)[grepl("^valeur|^value", names(climate_data), ignore.case = TRUE)][1]
+  if (!is.na(valeur_col) && valeur_col != "valeur") {
+    climate_data <- climate_data %>% rename(valeur = !!sym(valeur_col))
+  }
+}
+
+# Nettoyage final : supprimer les colonnes en double si elles existent
+# Garder seulement les colonnes standard
+final_cols <- c("date", "nom_fr", "valeur")
+available_cols <- intersect(final_cols, names(climate_data))
+
+# Si on a les 3 colonnes, on garde seulement celles-ci
+if (length(available_cols) == 3) {
+  climate_data <- climate_data %>% select(all_of(available_cols))
+}
+
+# Vérification finale
+cat("Colonnes détectées:", paste(names(climate_data), collapse = ", "), "\n")
+glimpse(climate_data)
+```
+
+------------------------------------------------------------------------
+
+## Pipeline ETL : Transformation
+
+::::: columns
+::: {.column width="40%"}
+### Passage Long ➡️ Wide
+
+-   Sélection des colonnes (noms minuscules).
+-   Groupement par `date`/`nom`.
+-   `pivot_wider` crée les colonnes variables.
+:::
+
+::: {.column width="60%"}
+```{r etl}
+# --- STEP 2: DATA TRANSFORMATION ---
+# Vérification que les colonnes existent avant de les utiliser
+required_cols <- c("date", "nom_fr", "valeur")
+missing_cols <- setdiff(required_cols, names(climate_data))
+
+if (length(missing_cols) > 0) {
+  stop(paste("❌ Colonnes manquantes:", paste(missing_cols, collapse = ", "), 
+             "\nColonnes disponibles:", paste(names(climate_data), collapse = ", ")))
+}
+
+# Transformation Long -> Wide
+df_wide <- climate_data %>%
+  select(date, nom_fr, valeur) %>%
+  group_by(date, nom_fr) %>%
+  # Moyenne pour gérer les doublons éventuels
+  summarise(valeur = mean(valeur, na.rm = TRUE), .groups = 'drop') %>% 
+  pivot_wider(names_from = nom_fr, values_from = valeur)
+
+# Nettoyage auto des noms de colonnes créés (espaces -> points)
+colnames(df_wide) <- make.names(colnames(df_wide))
+
+cat("✅ Transformation réussie\n")
+cat("Dimensions:", dim(df_wide), "\n")
+```
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## Feature Engineering
+
+::::: columns
+::: {.column width="40%"}
+### Enrichissement
+
+-   **Renommage** (`Solar_Rad`).
+-   **Typage** date.
+-   **Création Variable** : `Period`.
+-   $Rad > 0$ ➡️ **Jour**
+    -   Sinon ➡️ **Nuit**
+:::
+
+::: {.column width="60%"}
+```{r feature-eng}
+# Renommage des variables avec gestion d'erreur
+df <- df_wide %>%
+  mutate(
+    # Conversion de la colonne 'date' en format temporel
+    # Essai de plusieurs formats de date
+    Date = case_when(
+      # Si c'est déjà un POSIXct
+      inherits(date, "POSIXct") ~ date,
+      # Si c'est un caractère, on essaie plusieurs formats
+      is.character(date) ~ {
+        parsed <- parse_date_time(date, orders = c("ymd HMS", "ymd HM", "ymd", 
+                                                   "dmy HMS", "dmy HM", "dmy",
+                                                   "mdy HMS", "mdy HM", "mdy"),
+                                 quiet = TRUE)
+        if (all(is.na(parsed))) {
+          as.POSIXct(date, format = "%Y-%m-%d %H:%M:%S")
+        } else {
+          parsed
+        }
+      },
+      TRUE ~ as.POSIXct(date)
+    )
+  )
+
+# Renommage des colonnes climatiques (recherche flexible)
+# On cherche les colonnes qui contiennent ces mots-clés
+col_names <- names(df)
+
+# Solar Radiation
+solar_col <- col_names[grepl("solar|radiation|rayonnement", col_names, ignore.case = TRUE)][1]
+dew_col <- col_names[grepl("dew|rosée|point", col_names, ignore.case = TRUE)][1]
+wind_col <- col_names[grepl("wind|vent|speed|vitesse", col_names, ignore.case = TRUE)][1]
+vpd_col <- col_names[grepl("vpd", col_names, ignore.case = TRUE)][1]
+
+# Renommage si les colonnes existent
+if (!is.na(solar_col) && solar_col != "Solar_Rad") {
+  df <- df %>% rename(Solar_Rad = !!sym(solar_col))
+}
+if (!is.na(dew_col) && dew_col != "Dew_Point") {
+  df <- df %>% rename(Dew_Point = !!sym(dew_col))
+}
+if (!is.na(wind_col) && wind_col != "Wind_Speed") {
+  df <- df %>% rename(Wind_Speed = !!sym(wind_col))
+}
+if (!is.na(vpd_col) && vpd_col != "VPD") {
+  df <- df %>% rename(VPD = !!sym(vpd_col))
+}
+
+# Création de la variable Period
+df <- df %>%
+  mutate(
+    Period = ifelse(!is.na(Solar_Rad) & Solar_Rad > 0, "Day", "Night"),
+    Period = factor(Period)
+  )
+
+cat("✅ Feature engineering terminé\n")
+cat("Variables créées:", c("Date", "Period"), "\n")
+head(df %>% select(Date, Period, Solar_Rad, Dew_Point, Wind_Speed, VPD))
+```
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## Analyse 1 : Normalité (Vent)
+
+Vérifions la distribution de la vitesse du vent.
+
+::::: columns
+::: {.column width="50%"}
+```{r shapiro}
+# Nettoyage des NA
+wind_clean <- na.omit(df$Wind_Speed)
+
+# Vérification de la taille pour éviter l'erreur de sample
+n_size <- length(wind_clean)
+
+if(n_size > 5000) {
+  sample_wind <- sample(wind_clean, 5000)
+} else {
+  sample_wind <- wind_clean
+}
+
+res <- shapiro.test(sample_wind)
+print(res)
+```
+:::
+
+::: {.column width="50%"}
+```{r hist-wind, echo=FALSE, fig.height=5}
+# Histogramme
+ggplot(df, aes(x=Wind_Speed)) +
+  geom_histogram(fill="skyblue", color="black", bins=30) +
+  labs(title="Distribution du Vent", x="Vitesse (m/s)", y="Fréquence") +
+  theme_minimal()
+```
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## Analyse 2 : Matrice de Corrélation
+
+Quelles variables évoluent ensemble ?
+
+::::: columns
+::: {.column width="40%"}
+```{r corr-prep}
+# Sélection numérique
+numeric_cols <- df %>% 
+  select(Wind_Speed, Solar_Rad, Dew_Point, VPD) %>% 
+  na.omit()
+
+cor_matrix <- cor(numeric_cols)
+print(round(cor_matrix, 3))
+```
+:::
+
+::: {.column width="60%"}
+```{r corr-plot, fig.height=6}
+corrplot(cor_matrix, method="circle", 
+         type="upper", tl.col="black", 
+         title="Corrélation Climatique", mar=c(0,0,1,0))
+```
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## Analyse 3 : Régression Linéaire
+
+Modèle : **Point de Rosée \~ Radiation Solaire**
+
+::::: columns
+::: {.column width="40%"}
+```{r regression-model}
+model <- lm(Dew_Point ~ Solar_Rad, data = df)
+# Résumé compact
+print(summary(model)$coefficients)
+cat("\nR² =", round(summary(model)$r.squared, 4), "\n")
+```
+:::
+
+::: {.column width="60%"}
+```{r regression-plot, fig.height=6}
+ggplot(df, aes(x = Solar_Rad, y = Dew_Point)) +
+  geom_point(alpha = 0.1, color = "#3498db") +
+  geom_smooth(method = "lm", color = "#e74c3c") +
+  labs(title = "Régression : Soleil vs Rosée",
+       x = "Radiation (W/m²)", y = "Point de Rosée (°C)") +
+  theme_minimal()
+```
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## Analyse 4 : Comparaison Jour / Nuit
+
+Le point de rosée est-il significativement différent ?
+
+::::: columns
+::: {.column width="40%"}
+```{r t-test}
+# T-Test
+t.test(Dew_Point ~ Period, data = df)
+```
+:::
+
+::: {.column width="60%"}
+```{r boxplot-daynight, fig.height=6}
+ggplot(df %>% filter(!is.na(Period)), 
+       aes(x=Period, y=Dew_Point, fill=Period)) +
+  geom_boxplot(alpha=0.8) +
+  scale_fill_manual(values=c("Day"="#FDB813", "Night"="#2C3E50")) +
+  labs(title = "Distribution Jour vs Nuit", y = "Point de Rosée (°C)") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## Conclusion Globale
+
+1.  **Données** : Pipeline ETL opérationnel (nettoyage réussi).
+2.  **Corrélation** : Lien fort confirmé entre Radiation et VPD.
+3.  **Cycle** : Distinction statistique claire entre les phases diurne et nocturne.
+
+::: {.fragment .fade-up}
+**Prochaine étape :** Déploiement Dashboard R Shiny pour le suivi temps réel.
+:::
+
+------------------------------------------------------------------------
+
+## Fin de la présentation {.center}
+
+**Merci de votre attention !**
+
+Code source disponible sur GitHub.
+

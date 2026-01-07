@@ -1,0 +1,254 @@
+---
+title: "Meteorological Data Analysis"
+subtitle: "Mahdia Station - 2024"
+author: "Mohamed Hosni"
+date: "2026-01-07"
+format:
+  revealjs:
+    theme: cosmo
+    transition: slide
+    slide-number: true
+    width: 1600         
+    height: 900
+    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Flag_of_Tunisia.svg/1200px-Flag_of_Tunisia.svg.png"
+    footer: "Projet Data Science - Mahdia 2024"
+    incremental: false
+    code-line-numbers: true
+    echo: true          
+    output: true        
+editor: source
+---
+
+```{r setup, include=FALSE}
+# --- CHARGEMENT SILENCIEUX DES LIBRAIRIES ---
+if (!require("tidyverse")) install.packages("tidyverse")
+if (!require("httr")) install.packages("httr")
+if (!require("corrplot")) install.packages("corrplot")
+if (!require("lubridate")) install.packages("lubridate")
+
+library(tidyverse)
+library(httr)
+library(corrplot)
+library(lubridate)
+```
+
+## Introduction {.center}
+
+::: r-fit-text
+**Analyse des Données Météorologiques**
+:::
+
+Étude de la station Mahdia pour optimiser la production agricole.
+
+------------------------------------------------------------------------
+
+## 1. Chargement des Données
+
+Nous chargeons les données localement et corrigeons les noms de colonnes.
+
+```{r load-data, message=FALSE, warning=FALSE}
+# -------------------------------
+# 1. DEFINITION DU FICHIER
+# -------------------------------
+data_file <- "climate_data_fixed.csv"
+
+# Si le fichier n'existe pas, on le télécharge
+if (!file.exists(data_file)) {
+  url <- "[https://catalog.agridata.tn/dataset/e5206f41-d451-4603-a776-9faee9d1e5d8/resource/257e23dd-c58c-462b-ab52-d75a02c4980e/download/0311326a_station-mahdia-gda-bir-ben-kemla-sous-serre-dggree-2024-mahdia.csv](https://catalog.agridata.tn/dataset/e5206f41-d451-4603-a776-9faee9d1e5d8/resource/257e23dd-c58c-462b-ab52-d75a02c4980e/download/0311326a_station-mahdia-gda-bir-ben-kemla-sous-serre-dggree-2024-mahdia.csv)"
+  tryCatch({
+    GET(url, write_disk(data_file, overwrite = TRUE))
+  }, error = function(e) {
+    stop("❌ Erreur de téléchargement.")
+  })
+}
+
+# -------------------------------
+# 2. LECTURE ET NETTOYAGE DES NOMS
+# -------------------------------
+# Lecture standard
+climate_data <- read_csv(data_file, show_col_types = FALSE)
+
+# Si séparateur incorrect (1 seule colonne), on utilise read_csv2
+if (ncol(climate_data) <= 1) {
+  climate_data <- read_csv2(data_file, show_col_types = FALSE)
+}
+
+# --- CORRECTION CRITIQUE : RENOMMAGE FORCÉ ---
+# On renomme les 3 premières colonnes pour éviter les erreurs d'encodage (ï..Date)
+# On suppose que l'ordre est toujours : Date, Nom, Valeur
+if(ncol(climate_data) >= 3) {
+  colnames(climate_data)[1] <- "date"
+  colnames(climate_data)[2] <- "nom_fr"
+  colnames(climate_data)[3] <- "valeur"
+}
+
+# Aperçu pour vérifier que la colonne s'appelle bien "date"
+glimpse(climate_data)
+```
+
+------------------------------------------------------------------------
+
+## 2. Nettoyage et Transformation (ETL)
+
+Transformation des données brutes vers un format utilisable.
+
+```{r etl, message=FALSE, warning=FALSE}
+# --- TRANSFORMATION ---
+# pivot_wider pour avoir une colonne par variable météo
+df_wide <- climate_data %>%
+  select(date, nom_fr, valeur) %>%
+  group_by(date, nom_fr) %>%
+  summarise(valeur = mean(valeur, na.rm = TRUE), .groups = 'drop') %>% 
+  pivot_wider(names_from = nom_fr, values_from = valeur)
+
+# Nettoyage des noms de colonnes
+colnames(df_wide) <- make.names(colnames(df_wide))
+
+# --- FEATURE ENGINEERING ---
+df <- df_wide %>%
+  rename(
+    Solar_Rad = matches("Solar|Rayonnement"),
+    Dew_Point = matches("Dew|Rosée"),
+    Wind_Speed = matches("Wind|Vent"),
+    VPD = matches("VPD")
+  ) %>%
+  mutate(
+    # Conversion date robuste
+    Date_Time = parse_date_time(date, orders = c("ymd HMS", "dmy HMS", "mdy HMS")),
+    Hour = hour(Date_Time),
+    Period = ifelse(Hour >= 6 & Hour < 20, "Day", "Night")
+  ) %>%
+  drop_na()
+
+head(df)
+```
+
+------------------------------------------------------------------------
+
+## 3. Analyse de Normalité (Shapiro-Wilk)
+
+Testons si la vitesse du vent suit une distribution normale.
+
+::::: columns
+::: {.column width="50%"}
+```{r shapiro}
+# Nettoyage des NA
+wind_clean <- na.omit(df$Wind_Speed)
+
+# Échantillonnage si trop de données (>5000)
+if(length(wind_clean) > 5000) {
+  sample_wind <- sample(wind_clean, 5000)
+} else {
+  sample_wind <- wind_clean
+}
+
+# Test
+res <- shapiro.test(sample_wind)
+print(res)
+```
+:::
+
+::: {.column width="50%"}
+```{r hist-wind, echo=FALSE, fig.height=5}
+# Histogramme
+ggplot(df, aes(x=Wind_Speed)) +
+  geom_histogram(fill="#00BFC4", color="white", bins=30) +
+  labs(title="Distribution du Vent", x="Vitesse (m/s)", y="Fréquence") +
+  theme_minimal()
+```
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## 4. Matrice de Corrélation
+
+Quelles variables climatiques sont liées ?
+
+::::: columns
+::: {.column width="40%"}
+```{r corr-prep}
+# Sélection des variables numériques
+numeric_cols <- df %>% 
+  select(where(is.numeric)) %>%
+  select(-Hour) 
+
+cor_matrix <- cor(numeric_cols, use = "complete.obs")
+```
+:::
+
+::: {.column width="60%"}
+```{r corr-plot, fig.height=6}
+corrplot(cor_matrix, method="circle", 
+         type="upper", tl.col="black", 
+         tl.srt=45,
+         title="Corrélation Climatique", mar=c(0,0,2,0))
+```
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## 5. Régression Linéaire
+
+Modèle : **Point de Rosée \~ Radiation Solaire**
+
+::::: columns
+::: {.column width="40%"}
+```{r regression-model}
+# Modèle simple
+model <- lm(Dew_Point ~ Solar_Rad, data = df)
+
+# Affichage des coefficients
+summary(model)$coefficients
+```
+:::
+
+::: {.column width="60%"}
+```{r regression-plot, fig.height=6}
+ggplot(df, aes(x = Solar_Rad, y = Dew_Point)) +
+  geom_point(alpha = 0.3, color = "#3498db") +
+  geom_smooth(method = "lm", color = "#e74c3c") +
+  labs(title = "Régression : Soleil vs Rosée",
+       x = "Radiation (W/m²)", y = "Point de Rosée (°C)") +
+  theme_minimal()
+```
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## 6. Comparaison Jour / Nuit (T-Test)
+
+Le point de rosée change-t-il significativement ?
+
+::::: columns
+::: {.column width="40%"}
+```{r t-test}
+# T-Test indépendant
+t.test(Dew_Point ~ Period, data = df)
+```
+:::
+
+::: {.column width="60%"}
+```{r boxplot-daynight, fig.height=6}
+ggplot(df, aes(x=Period, y=Dew_Point, fill=Period)) +
+  geom_boxplot(alpha=0.8, outlier.shape = 16) +
+  scale_fill_manual(values=c("Day"="#F8766D", "Night"="#00BFC4")) +
+  labs(title = "Distribution Jour vs Nuit") +
+  theme_minimal()
+```
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## Conclusion
+
+1.  **Données** : Nettoyage réussi et gestion robuste des erreurs de format.
+2.  **Corrélation** : Relations identifiées entre les variables radiatives et thermiques.
+3.  **Cycle Diurne** : Différence significative confirmée entre le jour et la nuit.
+
+::: {.fragment .fade-up}
+**Merci de votre attention !**
+:::

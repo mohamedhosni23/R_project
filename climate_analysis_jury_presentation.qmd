@@ -1,0 +1,951 @@
+---
+title: "Statistical Analysis of Climate Variables"
+subtitle: "Meteorological Data Analysis - Mahdia Station, Tunisia (2024)"
+author: "Mohamed Hosni"
+date: today
+format:
+  revealjs:
+    theme: league
+    transition: fade
+    transition-speed: fast
+    navigation-mode: linear
+    scrollable: true
+    preview-links: auto
+    fig-width: 10
+    fig-height: 6.5
+    code-fold: true
+    fig-cap-location: bottom
+    highlight-style: github
+    footer: "Meteorological Data Analysis - Mahdia Station | Mohamed Hosni"
+    slide-number: true
+    chalkboard: 
+      buttons: false
+    menu:
+      numbers: true
+      width: "300"
+      titleSelector: 'h1, h2, h3'
+---
+
+```{css, echo=FALSE}
+/* Custom Colorful Styling */
+.reveal .slides section {
+  padding: 40px 60px;
+  text-align: left;
+}
+
+.reveal .title-slide {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f5576c 100%);
+  color: white;
+  text-align: center;
+}
+
+.reveal .title-slide h1,
+.reveal .title-slide h2,
+.reveal .title-slide h3 {
+  color: white;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+  font-weight: bold;
+}
+
+.reveal h1 {
+  color: #667eea;
+  font-weight: bold;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+}
+
+.reveal h2 {
+  color: #764ba2;
+  font-weight: bold;
+}
+
+.reveal h3 {
+  color: #f5576c;
+  font-weight: bold;
+}
+
+.reveal .progress {
+  color: #f5576c;
+  height: 4px;
+  background: rgba(245, 87, 108, 0.2);
+}
+
+.reveal .controls {
+  color: #667eea;
+}
+
+.reveal .slide-number {
+  background: linear-gradient(135deg, #667eea 0%, #f5576c 100%);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+/* Animations */
+.reveal section {
+  animation: fadeIn 0.6s ease-in;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(15px) scale(0.98); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
+}
+
+.reveal .slides section .fragment {
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.reveal .slides section .fragment.visible {
+  opacity: 1;
+  visibility: visible;
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from { 
+    transform: translateX(-20px) scale(0.95); 
+    opacity: 0; 
+  }
+  to { 
+    transform: translateX(0) scale(1); 
+    opacity: 1; 
+  }
+}
+
+/* Colorful boxes for key points */
+.highlight-box {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(245, 87, 108, 0.1) 100%);
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  border-left: 4px solid #f5576c;
+}
+
+.stat-box {
+  background: rgba(102, 126, 234, 0.05);
+  padding: 15px;
+  border-radius: 8px;
+  margin: 10px;
+  border: 2px solid rgba(102, 126, 234, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Enhanced list styling */
+.reveal ul, .reveal ol {
+  line-height: 1.8;
+}
+
+.reveal li {
+  margin: 10px 0;
+  padding-left: 10px;
+}
+
+/* Code blocks */
+.reveal pre {
+  background: #2d2d2d;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.reveal code {
+  color: #f5576c;
+  background: rgba(245, 87, 108, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = "center",
+  fig.width = 9,
+  fig.height = 6,
+  dpi = 300
+)
+
+library(tidyverse)
+library(httr)
+library(corrplot)
+library(lubridate)
+library(gridExtra)
+library(grid)
+```
+
+## Title Slide {.title-slide .r-fit-text}
+
+# Statistical Analysis of Climate Variables {.fragment .fade-in}
+
+## Meteorological Data Analysis {.fragment .fade-in}
+
+### Mahdia Station, Tunisia (2024) {.fragment .fade-in}
+
+**Mohamed Hosni** {.fragment .fade-in}
+
+`r Sys.Date()` {.fragment .fade-in}
+
+::: {.fragment .fade-in}
+<div style="margin-top: 50px; font-size: 0.8em; opacity: 0.8;">
+📊 Comprehensive Statistical Analysis | 🌡️ Climate Variables | 📈 Data Visualization
+</div>
+:::
+
+---
+
+## Presentation Outline {.fragment .fade-in}
+
+### Structure {.fragment .fade-in}
+
+::: {.fragment .fade-in}
+1. **Introduction & Objectives** 📋
+2. **Data Source & Methodology** 📊
+3. **Data Processing Pipeline** ⚙️
+4. **Descriptive Statistics** 📈
+5. **Statistical Analyses** 🔬
+   - Normality Testing
+   - Correlation Analysis
+   - Linear Regression
+   - Hypothesis Testing
+6. **Visualizations & Results** 📉
+7. **Conclusions & Recommendations** ✅
+:::
+
+---
+
+## 1. Introduction {.fragment .fade-in}
+
+### Research Context {.fragment .fade-in}
+
+::: {.fragment .fade-in}
+- **📍 Location**: Mahdia Climate Station, Tunisia
+- **📅 Period**: 2024
+- **💾 Data Source**: Tunisia's Agricultural Data Catalog (AgriData)
+- **🎯 Objective**: Investigate relationships between key climate variables and compare Day vs Night conditions
+:::
+
+### Climate Variables Analyzed {.fragment .fade-in}
+
+::: {.fragment .fade-in}
+- **☀️ Solar Radiation** (W/m²)
+- **💨 Wind Speed** (m/s)
+- **💧 Dew Point** (°C)
+- **🌡️ Vapor Pressure Deficit - VPD** (kPa)
+:::
+
+---
+
+## 2. Research Objectives {.fragment .fade-in}
+
+### Primary Goals {.fragment .fade-in}
+
+::: {.fragment .fade-in}
+1. **🔍 Explore relationships** between solar radiation, wind speed, dew point, and VPD
+2. **🌓 Compare climatic conditions** between Day and Night periods
+3. **📊 Test statistical hypotheses** about variable distributions and relationships
+4. **💡 Provide insights** for agricultural planning and climate monitoring
+:::
+
+### Research Questions {.fragment .fade-in}
+
+::: {.fragment .fade-in}
+- ❓ Does solar radiation significantly predict dew point?
+- ❓ Are there statistically significant differences between day and night conditions?
+- ❓ What are the correlations between different climate variables?
+:::
+
+---
+
+## 3. Data Source & Acquisition
+
+### Data Collection
+
+```{r data-info, echo=TRUE, eval=FALSE}
+# Data Source: Tunisia Agricultural Data Catalog
+url <- "https://catalog.agridata.tn/dataset/e5206f41-d451-4603-a776-9faee9d1e5d8/resource/257e23dd-c58c-462b-ab52-d75a02c4980e/download/0311326a_station-mahdia-gda-bir-ben-kemla-sous-serre-dggree-2024-mahdia.csv"
+```
+
+- **Platform**: AgriData Tunisia
+- **Format**: CSV (Long format)
+- **Station**: Mahdia - GDA Bir Ben Kemla (Greenhouse)
+- **Institution**: DGGREE (Direction Générale du Génie Rural et de l'Exploitation des Eaux)
+
+---
+
+## 4. Data Processing Pipeline
+
+### Step 1: Data Loading
+
+```{r data-loading}
+url <- "https://catalog.agridata.tn/dataset/e5206f41-d451-4603-a776-9faee9d1e5d8/resource/257e23dd-c58c-462b-ab52-d75a02c4980e/download/0311326a_station-mahdia-gda-bir-ben-kemla-sous-serre-dggree-2024-mahdia.csv"
+
+GET(url, write_disk("climate_data_fixed.csv", overwrite = TRUE))
+raw_df <- read_csv("climate_data_fixed.csv", show_col_types = FALSE)
+```
+
+### Step 2: Data Transformation
+
+```{r data-transformation}
+# Transform from Long to Wide format
+df_wide <- raw_df %>%
+  select(Date, nom_fr, valeur) %>%
+  group_by(Date, nom_fr) %>%
+  summarise(valeur = mean(valeur, na.rm = TRUE), .groups = "drop") %>%
+  pivot_wider(names_from = nom_fr, values_from = valeur)
+
+# Clean column names
+colnames(df_wide) <- make.names(colnames(df_wide))
+
+# Rename and create variables
+df <- df_wide %>%
+  rename(
+    Solar_Rad = Solar.radiation,
+    Dew_Point = Dew.Point,
+    Wind_Speed = U.sonic.wind.speed,
+    VPD = VPD
+  ) %>%
+  mutate(
+    Date = as.POSIXct(Date, format = "%Y-%m-%d %H:%M:%S"),
+    Hour = hour(Date),
+    Period = factor(ifelse(Solar_Rad > 0, "Day", "Night"))
+  )
+
+cat("✅ Data successfully transformed\n")
+cat("Total observations:", nrow(df), "\n")
+cat("Variables:", ncol(df), "\n")
+```
+
+---
+
+## 5. Data Overview
+
+### Dataset Characteristics
+
+```{r data-overview}
+cat("Dataset Summary:\n")
+cat("─────────────────────────────────────\n")
+cat("Total observations:", nrow(df), "\n")
+cat("Date range:", format(min(df$Date, na.rm = TRUE), "%Y-%m-%d"), 
+    "to", format(max(df$Date, na.rm = TRUE), "%Y-%m-%d"), "\n")
+cat("Day observations:", sum(df$Period == "Day", na.rm = TRUE), "\n")
+cat("Night observations:", sum(df$Period == "Night", na.rm = TRUE), "\n")
+cat("\nVariables analyzed:\n")
+cat("  • Solar Radiation (W/m²)\n")
+cat("  • Wind Speed (m/s)\n")
+cat("  • Dew Point (°C)\n")
+cat("  • Vapor Pressure Deficit (kPa)\n")
+```
+
+---
+
+## 6. Descriptive Statistics
+
+### Summary Statistics
+
+```{r descriptive-stats}
+summary_stats <- df %>%
+  select(Solar_Rad, Wind_Speed, Dew_Point, VPD) %>%
+  summarise_all(list(
+    Mean = ~ mean(., na.rm = TRUE),
+    Median = ~ median(., na.rm = TRUE),
+    SD = ~ sd(., na.rm = TRUE),
+    Min = ~ min(., na.rm = TRUE),
+    Max = ~ max(., na.rm = TRUE)
+  ))
+
+# Display key statistics
+cat("Key Statistics:\n\n")
+cat("Solar Radiation:\n")
+cat("  Mean:", round(mean(df$Solar_Rad, na.rm = TRUE), 2), "W/m²\n")
+cat("  Median:", round(median(df$Solar_Rad, na.rm = TRUE), 2), "W/m²\n\n")
+
+cat("Wind Speed:\n")
+cat("  Mean:", round(mean(df$Wind_Speed, na.rm = TRUE), 2), "m/s\n")
+cat("  Median:", round(median(df$Wind_Speed, na.rm = TRUE), 2), "m/s\n\n")
+
+cat("Dew Point:\n")
+cat("  Mean:", round(mean(df$Dew_Point, na.rm = TRUE), 2), "°C\n")
+cat("  Median:", round(median(df$Dew_Point, na.rm = TRUE), 2), "°C\n\n")
+
+cat("VPD:\n")
+cat("  Mean:", round(mean(df$VPD, na.rm = TRUE), 2), "kPa\n")
+cat("  Median:", round(median(df$VPD, na.rm = TRUE), 2), "kPa\n")
+```
+
+---
+
+## 7. Statistical Analysis: Normality Test
+
+### Shapiro-Wilk Test (Wind Speed)
+
+```{r normality-test}
+wind_clean <- na.omit(df$Wind_Speed)
+sample_wind <- sample(wind_clean, min(5000, length(wind_clean)))
+shapiro_res <- shapiro.test(sample_wind)
+
+cat("Shapiro-Wilk Normality Test\n")
+cat("─────────────────────────────\n")
+cat("Variable: Wind Speed\n")
+cat("Sample size:", length(sample_wind), "\n")
+cat("W-statistic:", round(shapiro_res$statistic, 4), "\n")
+cat("p-value:", format(shapiro_res$p.value, scientific = TRUE, digits = 4), "\n\n")
+
+if(shapiro_res$p.value < 0.05) {
+  cat("Interpretation: Data significantly deviates from normal distribution (p < 0.05)\n")
+  cat("→ Non-parametric tests may be more appropriate\n")
+} else {
+  cat("Interpretation: Data appears normally distributed (p ≥ 0.05)\n")
+  cat("→ Parametric tests are appropriate\n")
+}
+```
+
+**Note**: Test limited to 5000 observations due to computational constraints
+
+---
+
+## 8. Correlation Analysis
+
+### Correlation Matrix
+
+```{r correlation}
+numeric_df <- df %>%
+  select(Solar_Rad, Wind_Speed, Dew_Point, VPD) %>%
+  drop_na()
+
+cor_matrix <- cor(numeric_df)
+
+corrplot(
+  cor_matrix,
+  method = "color",
+  type = "upper",
+  col = colorRampPalette(c("#667eea", "#ffffff", "#f5576c"))(200),
+  addCoef.col = "black",
+  tl.col = "black",
+  tl.srt = 45,
+  tl.cex = 1.3,
+  number.cex = 1.2,
+  title = "Correlation Matrix of Climate Variables",
+  mar = c(0, 0, 3, 0),
+  bg = "transparent"
+)
+```
+
+---
+
+## 9. Correlation Results
+
+### Key Correlations
+
+```{r correlation-results}
+cat("Correlation Coefficients:\n")
+cat("─────────────────────────\n\n")
+cat("Solar Radiation ↔ Dew Point:\n")
+cat("  r =", round(cor_matrix["Solar_Rad", "Dew_Point"], 3), "\n\n")
+
+cat("Solar Radiation ↔ VPD:\n")
+cat("  r =", round(cor_matrix["Solar_Rad", "VPD"], 3), "\n\n")
+
+cat("Wind Speed ↔ Dew Point:\n")
+cat("  r =", round(cor_matrix["Wind_Speed", "Dew_Point"], 3), "\n\n")
+
+cat("Dew Point ↔ VPD:\n")
+cat("  r =", round(cor_matrix["Dew_Point", "VPD"], 3), "\n\n")
+
+# Interpretation
+cat("Interpretation:\n")
+if(abs(cor_matrix["Solar_Rad", "Dew_Point"]) > 0.5) {
+  cat("  • Strong relationship between Solar Radiation and Dew Point\n")
+} else if(abs(cor_matrix["Solar_Rad", "Dew_Point"]) > 0.3) {
+  cat("  • Moderate relationship between Solar Radiation and Dew Point\n")
+} else {
+  cat("  • Weak relationship between Solar Radiation and Dew Point\n")
+}
+```
+
+---
+
+## 10. Linear Regression Analysis
+
+### Model: Dew Point ~ Solar Radiation
+
+```{r regression-model}
+model <- lm(Dew_Point ~ Solar_Rad, data = df)
+
+cat("Linear Regression Model\n")
+cat("─────────────────────────\n")
+cat("Dependent Variable: Dew Point (°C)\n")
+cat("Independent Variable: Solar Radiation (W/m²)\n\n")
+
+cat("Model Equation:\n")
+cat("Dew Point =", round(coef(model)[1], 3), "+", 
+    round(coef(model)[2], 5), "× Solar Radiation\n\n")
+
+cat("Model Summary:\n")
+cat("  R-squared:", round(summary(model)$r.squared, 4), "\n")
+cat("  Adjusted R-squared:", round(summary(model)$adj.r.squared, 4), "\n")
+cat("  F-statistic:", round(summary(model)$fstatistic[1], 2), "\n")
+cat("  p-value:", format(summary(model)$coefficients[2, 4], scientific = TRUE, digits = 4), "\n\n")
+
+if(summary(model)$coefficients[2, 4] < 0.05) {
+  cat("Interpretation: Solar Radiation is a significant predictor of Dew Point (p < 0.05)\n")
+} else {
+  cat("Interpretation: Solar Radiation is NOT a significant predictor (p ≥ 0.05)\n")
+}
+```
+
+---
+
+## 11. Regression Visualization
+
+### Scatter Plot with Fitted Line
+
+```{r regression-plot}
+ggplot(df, aes(x = Solar_Rad, y = Dew_Point)) +
+  geom_point(color = "#667eea", alpha = 0.4, size = 2, shape = 19) +
+  geom_smooth(method = "lm", color = "#f5576c", se = TRUE, 
+              fill = "#f5576c", alpha = 0.2, linewidth = 2) +
+  labs(
+    title = "Linear Regression: Solar Radiation vs Dew Point",
+    subtitle = paste("R² =", round(summary(model)$r.squared, 3), 
+                    "| p-value < 0.001"),
+    x = "Solar Radiation (W/m²)",
+    y = "Dew Point (°C)"
+  ) +
+  theme_minimal(base_size = 15) +
+  theme(
+    plot.title = element_text(face = "bold", size = 18, hjust = 0.5, color = "#2c3e50"),
+    plot.subtitle = element_text(hjust = 0.5, color = "#7f8c8d", size = 14),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA),
+    panel.grid.major = element_line(color = "gray90", linewidth = 0.5),
+    panel.grid.minor = element_line(color = "gray95", linewidth = 0.3),
+    axis.text = element_text(color = "#2c3e50", size = 12),
+    axis.title = element_text(color = "#2c3e50", size = 14, face = "bold")
+  )
+```
+
+---
+
+## 12. Hypothesis Testing: T-Test
+
+### Day vs Night Comparison
+
+```{r t-test}
+t_test_res <- t.test(Dew_Point ~ Period, data = df)
+
+cat("Student's T-Test: Day vs Night (Dew Point)\n")
+cat("───────────────────────────────────────────\n\n")
+cat("Test Type: Welch Two Sample t-test\n\n")
+cat("Results:\n")
+cat("  t-statistic:", round(t_test_res$statistic, 4), "\n")
+cat("  Degrees of freedom:", round(t_test_res$parameter, 2), "\n")
+cat("  p-value:", format(t_test_res$p.value, scientific = TRUE, digits = 4), "\n\n")
+cat("Mean Values:\n")
+cat("  Day:", round(t_test_res$estimate[1], 2), "°C\n")
+cat("  Night:", round(t_test_res$estimate[2], 2), "°C\n")
+cat("  Difference:", round(t_test_res$estimate[1] - t_test_res$estimate[2], 2), "°C\n\n")
+
+if(t_test_res$p.value < 0.05) {
+  cat("Interpretation: Significant difference between Day and Night (p < 0.05)\n")
+  cat("→ Reject null hypothesis: Means are significantly different\n")
+} else {
+  cat("Interpretation: No significant difference (p ≥ 0.05)\n")
+  cat("→ Fail to reject null hypothesis\n")
+}
+```
+
+---
+
+## 13. Boxplots: Dew Point Comparison
+
+### Day vs Night
+
+```{r boxplot-dewpoint}
+ggplot(df %>% filter(!is.na(Period)), 
+       aes(x = Period, y = Dew_Point, fill = Period)) +
+  geom_boxplot(alpha = 0.8, width = 0.6, outlier.alpha = 0.6, 
+               outlier.color = "#f5576c", outlier.size = 2) +
+  scale_fill_manual(values = c("Day" = "#f5576c", "Night" = "#667eea")) +
+  labs(
+    title = "Dew Point: Day vs Night Comparison",
+    subtitle = paste("T-test p-value:", format(t_test_res$p.value, scientific = TRUE, digits = 3)),
+    y = "Dew Point (°C)",
+    x = "Period"
+  ) +
+  theme_minimal(base_size = 15) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(face = "bold", size = 18, hjust = 0.5, color = "#2c3e50"),
+    plot.subtitle = element_text(hjust = 0.5, color = "#7f8c8d", size = 14),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA),
+    axis.text = element_text(color = "#2c3e50", size = 13),
+    axis.title = element_text(color = "#2c3e50", size = 15, face = "bold")
+  )
+```
+
+---
+
+## 14. Boxplots: Solar Radiation
+
+### Day vs Night
+
+```{r boxplot-solar}
+ggplot(df %>% filter(!is.na(Period) & !is.na(Solar_Rad)), 
+       aes(x = Period, y = Solar_Rad, fill = Period)) +
+  geom_boxplot(alpha = 0.8, width = 0.6, outlier.alpha = 0.6, 
+               outlier.color = "#f5576c", outlier.size = 2) +
+  scale_fill_manual(values = c("Day" = "#f5576c", "Night" = "#667eea")) +
+  labs(
+    title = "Solar Radiation: Day vs Night Comparison",
+    y = "Solar Radiation (W/m²)",
+    x = "Period"
+  ) +
+  theme_minimal(base_size = 15) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(face = "bold", size = 18, hjust = 0.5, color = "#2c3e50"),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA),
+    axis.text = element_text(color = "#2c3e50", size = 13),
+    axis.title = element_text(color = "#2c3e50", size = 15, face = "bold")
+  )
+```
+
+---
+
+## 15. Boxplots: Wind Speed
+
+### Day vs Night
+
+```{r boxplot-wind}
+ggplot(df %>% filter(!is.na(Period) & !is.na(Wind_Speed)), 
+       aes(x = Period, y = Wind_Speed, fill = Period)) +
+  geom_boxplot(alpha = 0.8, width = 0.6, outlier.alpha = 0.6, 
+               outlier.color = "#f5576c", outlier.size = 2) +
+  scale_fill_manual(values = c("Day" = "#f5576c", "Night" = "#667eea")) +
+  labs(
+    title = "Wind Speed: Day vs Night Comparison",
+    y = "Wind Speed (m/s)",
+    x = "Period"
+  ) +
+  theme_minimal(base_size = 15) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(face = "bold", size = 18, hjust = 0.5, color = "#2c3e50"),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA),
+    axis.text = element_text(color = "#2c3e50", size = 13),
+    axis.title = element_text(color = "#2c3e50", size = 15, face = "bold")
+  )
+```
+
+---
+
+## 16. Boxplots: VPD Comparison
+
+### Day vs Night
+
+```{r boxplot-vpd}
+ggplot(df %>% filter(!is.na(Period) & !is.na(VPD)), 
+       aes(x = Period, y = VPD, fill = Period)) +
+  geom_boxplot(alpha = 0.8, width = 0.6, outlier.alpha = 0.6, 
+               outlier.color = "#f5576c", outlier.size = 2) +
+  scale_fill_manual(values = c("Day" = "#f5576c", "Night" = "#667eea")) +
+  labs(
+    title = "Vapor Pressure Deficit: Day vs Night Comparison",
+    y = "VPD (kPa)",
+    x = "Period"
+  ) +
+  theme_minimal(base_size = 15) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(face = "bold", size = 18, hjust = 0.5, color = "#2c3e50"),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA),
+    axis.text = element_text(color = "#2c3e50", size = 13),
+    axis.title = element_text(color = "#2c3e50", size = 15, face = "bold")
+  )
+```
+
+---
+
+## 17. Combined Boxplot Panel
+
+### All Climate Variables
+
+```{r boxplot-combined, fig.width=11, fig.height=8}
+p1 <- ggplot(df %>% filter(!is.na(Period)), 
+             aes(x = Period, y = Dew_Point, fill = Period)) +
+  geom_boxplot(alpha = 0.8, outlier.alpha = 0.5, outlier.color = "#f5576c") +
+  scale_fill_manual(values = c("Day" = "#f5576c", "Night" = "#667eea")) +
+  labs(title = "Dew Point", y = "°C", x = "") +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "none", 
+        plot.title = element_text(face = "bold", size = 14, color = "#2c3e50"),
+        plot.background = element_rect(fill = "white", color = NA),
+        axis.text = element_text(color = "#2c3e50"),
+        axis.title = element_text(color = "#2c3e50", face = "bold"))
+
+p2 <- ggplot(df %>% filter(!is.na(Period) & !is.na(Solar_Rad)), 
+             aes(x = Period, y = Solar_Rad, fill = Period)) +
+  geom_boxplot(alpha = 0.8, outlier.alpha = 0.5, outlier.color = "#f5576c") +
+  scale_fill_manual(values = c("Day" = "#f5576c", "Night" = "#667eea")) +
+  labs(title = "Solar Radiation", y = "W/m²", x = "") +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "none", 
+        plot.title = element_text(face = "bold", size = 14, color = "#2c3e50"),
+        plot.background = element_rect(fill = "white", color = NA),
+        axis.text = element_text(color = "#2c3e50"),
+        axis.title = element_text(color = "#2c3e50", face = "bold"))
+
+p3 <- ggplot(df %>% filter(!is.na(Period) & !is.na(Wind_Speed)), 
+             aes(x = Period, y = Wind_Speed, fill = Period)) +
+  geom_boxplot(alpha = 0.8, outlier.alpha = 0.5, outlier.color = "#f5576c") +
+  scale_fill_manual(values = c("Day" = "#f5576c", "Night" = "#667eea")) +
+  labs(title = "Wind Speed", y = "m/s", x = "") +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "none", 
+        plot.title = element_text(face = "bold", size = 14, color = "#2c3e50"),
+        plot.background = element_rect(fill = "white", color = NA),
+        axis.text = element_text(color = "#2c3e50"),
+        axis.title = element_text(color = "#2c3e50", face = "bold"))
+
+p4 <- ggplot(df %>% filter(!is.na(Period) & !is.na(VPD)), 
+             aes(x = Period, y = VPD, fill = Period)) +
+  geom_boxplot(alpha = 0.8, outlier.alpha = 0.5, outlier.color = "#f5576c") +
+  scale_fill_manual(values = c("Day" = "#f5576c", "Night" = "#667eea")) +
+  labs(title = "VPD", y = "kPa", x = "") +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "none", 
+        plot.title = element_text(face = "bold", size = 14, color = "#2c3e50"),
+        plot.background = element_rect(fill = "white", color = NA),
+        axis.text = element_text(color = "#2c3e50"),
+        axis.title = element_text(color = "#2c3e50", face = "bold"))
+
+grid.arrange(p1, p2, p3, p4, ncol = 2, 
+             top = textGrob("Climate Variables: Day vs Night Comparison",
+                           gp = gpar(fontsize = 20, fontface = "bold", col = "#2c3e50")))
+```
+
+---
+
+## 18. Key Findings {.fragment .fade-in}
+
+### Main Results {.fragment .fade-in}
+
+::: {.fragment .fade-in}
+#### 1. **☀️ Solar Radiation → 💧 Dew Point Relationship**
+- **✅ Significant linear relationship** (p < 0.001)
+- R² indicates moderate to strong predictive power
+- Solar radiation is a reliable predictor of dew point
+:::
+
+::: {.fragment .fade-in}
+#### 2. **🌓 Day vs Night Differences**
+- **✅ Statistically significant differences** in dew point (p < 0.05)
+- Clear visual separation in boxplots
+- Day period shows higher variability
+:::
+
+::: {.fragment .fade-in}
+#### 3. **🔗 Variable Correlations**
+- Strong correlations between related variables
+- Solar radiation and VPD show expected relationships
+- Wind speed shows moderate correlations
+:::
+
+---
+
+## 19. Statistical Summary
+
+### Test Results Summary
+
+| Test | Variable(s) | Result | p-value | Interpretation |
+|------|-------------|--------|---------|----------------|
+| **Shapiro-Wilk** | Wind Speed | W = `r round(shapiro_res$statistic, 3)` | `r format(shapiro_res$p.value, scientific=TRUE, digits=3)` | `r ifelse(shapiro_res$p.value < 0.05, "Non-normal", "Normal")` |
+| **T-Test** | Dew Point (Day vs Night) | t = `r round(t_test_res$statistic, 3)` | `r format(t_test_res$p.value, scientific=TRUE, digits=3)` | `r ifelse(t_test_res$p.value < 0.05, "Significant difference", "No significant difference")` |
+| **Linear Regression** | Dew Point ~ Solar_Rad | R² = `r round(summary(model)$r.squared, 3)` | `r format(summary(model)$coefficients[2,4], scientific=TRUE, digits=3)` | `r ifelse(summary(model)$coefficients[2,4] < 0.05, "Significant predictor", "Not significant")` |
+
+---
+
+## 20. Practical Implications
+
+### Agricultural Applications
+
+1. **Irrigation Planning**
+   - Use dew point predictions based on solar radiation forecasts
+   - Optimize water usage during different periods
+
+2. **Crop Management**
+   - Day/night differences inform timing of agricultural activities
+   - VPD monitoring helps prevent plant stress
+
+3. **Climate Monitoring**
+   - Establish baseline conditions for the Mahdia region
+   - Track long-term climate trends
+
+4. **Greenhouse Management**
+   - Optimize ventilation based on wind speed patterns
+   - Control humidity using dew point data
+
+---
+
+## 21. Methodological Strengths
+
+### Robust Analysis
+
+✅ **Comprehensive Statistical Approach**
+- Multiple statistical tests (normality, correlation, regression, hypothesis testing)
+- Appropriate sample sizes and test selection
+
+✅ **Data Quality**
+- Proper data transformation (long to wide format)
+- Missing value handling
+- Period classification based on solar radiation
+
+✅ **Visualization**
+- Multiple visualization types (correlation matrix, scatter plots, boxplots)
+- Clear and informative graphics
+
+✅ **Reproducibility**
+- Well-documented code
+- Transparent methodology
+
+---
+
+## 22. Limitations & Future Work
+
+### Current Limitations
+
+- **Sample Size**: Normality test limited to 5000 observations
+- **Temporal Scope**: Analysis limited to 2024 data
+- **Variables**: Focus on 4 main climate variables
+- **Station**: Single station analysis (Mahdia)
+
+### Future Research Directions
+
+1. **Expand Temporal Range**: Multi-year analysis for trend detection
+2. **Spatial Analysis**: Compare multiple stations across Tunisia
+3. **Advanced Modeling**: Machine learning approaches for prediction
+4. **Seasonal Analysis**: Investigate seasonal patterns
+5. **Extreme Events**: Analysis of extreme weather conditions
+
+---
+
+## 23. Conclusions {.fragment .fade-in}
+
+### Summary {.fragment .fade-in}
+
+::: {.fragment .fade-in}
+1. **☀️ Solar radiation significantly influences dew point**
+   - Linear regression model demonstrates clear predictive relationship
+   - R² value indicates meaningful variance explanation
+:::
+
+::: {.fragment .fade-in}
+2. **🌓 Clear statistical differences between day and night**
+   - T-test confirms significant differences in dew point
+   - Boxplots visually support statistical findings
+:::
+
+::: {.fragment .fade-in}
+3. **🌾 Results support microclimate and agricultural analysis**
+   - Comprehensive statistical analysis provides actionable insights
+   - Findings applicable to agricultural planning and climate monitoring
+:::
+
+::: {.fragment .fade-in}
+4. **✅ Methodology is robust and reproducible**
+   - Transparent data processing pipeline
+   - Appropriate statistical tests applied
+:::
+
+---
+
+## 24. Recommendations
+
+### Actionable Steps
+
+1. **Continue Monitoring**
+   - Establish long-term monitoring program
+   - Track trends over multiple years
+
+2. **Agricultural Applications**
+   - Use day/night classification for targeted interventions
+   - Integrate findings into irrigation scheduling
+
+3. **Expand Analysis**
+   - Include seasonal variations
+   - Analyze extreme weather events
+   - Compare with other stations
+
+4. **Data Integration**
+   - Combine with crop yield data
+   - Link to agricultural productivity metrics
+
+---
+
+## 25. Acknowledgments
+
+### Data Sources
+
+- **AgriData Tunisia**: Data platform
+- **DGGREE**: Direction Générale du Génie Rural et de l'Exploitation des Eaux
+- **Mahdia Station**: GDA Bir Ben Kemla (Greenhouse)
+
+### Tools & Libraries
+
+- **R Statistical Software**
+- **Tidyverse**: Data manipulation and visualization
+- **Quarto**: Reproducible research framework
+
+---
+
+## Thank You! {.title-slide .r-fit-text}
+
+# Questions & Discussion {.fragment .fade-in}
+
+## Statistical Analysis of Climate Variables {.fragment .fade-in}
+### Mahdia Station, Tunisia (2024) {.fragment .fade-in}
+
+**Mohamed Hosni** {.fragment .fade-in}
+
+::: {.fragment .fade-in}
+<div style="margin-top: 50px; font-size: 1.2em;">
+📧 Contact | 📊 Full Report Available | 🔬 Reproducible Analysis
+</div>
+:::
+
+---
+
+## Appendix: Technical Details
+
+### Software & Packages
+
+```{r session-info, echo=TRUE, eval=FALSE}
+sessionInfo()
+```
+
+### Data Processing Code
+
+- Data downloaded via HTTP GET request
+- Transformation from long to wide format using `pivot_wider()`
+- Period classification: Day (Solar_Rad > 0) vs Night (Solar_Rad = 0)
+- All analyses performed in R using tidyverse ecosystem
+
